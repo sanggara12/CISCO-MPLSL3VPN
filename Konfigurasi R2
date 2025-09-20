@@ -1,0 +1,45 @@
+---------------------------------------------
+###Interfaces###
+
+interface Loopback0
+ ip address 2.2.2.2 255.255.255.255
+
+interface GigabitEthernet0/0
+ ip address 13.13.13.2 255.255.255.252
+ duplex auto
+ speed auto
+ media-type rj45
+ mpls label protocol ldp
+ mpls ip
+
+interface GigabitEthernet0/1
+ ip address 12.12.12.1 255.255.255.252
+ duplex auto
+ speed auto
+ media-type rj45
+ mpls label protocol ldp
+ mpls ip
+
+interface GigabitEthernet0/2
+ ip address 20.20.20.1 255.255.255.252
+ duplex auto
+ speed auto
+ media-type rj45
+ mpls label protocol ldp
+ mpls ip
+
+---------------------------------------------
+###Global Configuration###
+
+mpls ip
+mpls label protocol ldp
+mpls ldp router-id lo0
+
+---------------------------------------------
+###Routing (OSPF)#
+router ospf 10
+ router-id 2.2.2.2
+ network 2.2.2.2 0.0.0.0 area 0
+ network 12.12.12.0 0.0.0.3 area 0
+ network 13.13.13.0 0.0.0.3 area 0
+ network 20.20.20.0 0.0.0.3 area 0
