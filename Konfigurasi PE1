@@ -1,0 +1,94 @@
+! =========================
+!  Global Configuration
+! =========================
+hostname PE1
+no cdp run
+
+! =========================
+!  VRF Configuration
+! =========================
+ip vrf A
+ rd 5100:1
+ route-target export 1:1
+ route-target import 1:1
+
+ip vrf B
+ rd 5100:2
+ route-target export 2:2
+ route-target import 2:2
+
+! =========================
+!  MPLS Configuration
+! =========================
+mpls label protocol ldp
+mpls ldp router-id Loopback0
+
+! =========================
+!  Interfaces
+! =========================
+interface Loopback0
+ ip address 100.100.100.100 255.255.255.255
+
+interface GigabitEthernet0/0
+ ip address 10.10.10.2 255.255.255.252
+ duplex auto
+ speed auto
+ media-type rj45
+ no cdp enable
+ mpls label protocol ldp
+ mpls ip
+
+interface GigabitEthernet0/1
+ ip vrf forwarding A
+ ip address 21.21.21.1 255.255.255.252
+ duplex auto
+ speed auto
+ media-type rj45
+ no cdp enable
+
+interface GigabitEthernet0/2
+ ip vrf forwarding B
+ ip address 31.31.31.1 255.255.255.252
+ duplex auto
+ speed auto
+ media-type rj45
+
+! =========================
+!  Routing Configuration
+! =========================
+router ospf 100 vrf A
+ router-id 100.100.100.100
+ redistribute bgp 5100 subnets
+ network 21.21.21.0 0.0.0.3 area 0
+ network 100.100.100.100 0.0.0.0 area 0
+
+router ospf 200 vrf B
+ router-id 200.200.200.200
+ redistribute bgp 5100 subnets
+ network 31.31.31.0 0.0.0.3 area 0
+ network 200.200.200.200 0.0.0.0 area 0
+
+router ospf 10
+ network 10.10.10.0 0.0.0.3 area 0
+ network 100.100.100.100 0.0.0.0 area 0
+
+router bgp 5100
+ bgp router-id 100.100.100.100
+ bgp log-neighbor-changes
+ neighbor 200.200.200.200 remote-as 5100
+ neighbor 200.200.200.200 update-source Loopback0
+
+ address-family vpnv4
+  neighbor 200.200.200.200 activate
+  neighbor 200.200.200.200 send-community extended
+ exit-address-family
+
+ address-family ipv4 vrf A
+  redistribute ospf 100 match internal external 1 external 2
+ exit-address-family
+
+ address-family ipv4 vrf B
+  redistribute ospf 200 match internal external 1 external 2
+ exit-address-family
+
+end
