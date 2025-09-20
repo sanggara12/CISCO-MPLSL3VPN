@@ -27,12 +27,14 @@ interface GigabitEthernet0/2
  media-type rj45
  mpls label protocol ldp
  mpls ip
----------------------------------------------
 
+---------------------------------------------
 ###Global Configuration###
+
 mpls ip
 mpls label protocol ldp
 mpls ldp router-id lo0
+
 ---------------------------------------------
 ###Routing (OSPF)#
 
